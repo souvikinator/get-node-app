@@ -27,7 +27,7 @@ app.use((req, res) => {
     res.status(404).sendFile('/pages/notfound.html', { root: __dirname });
 });
 
-
+// start server
 app.listen(PORT, () => {
     console.log(`server running at >${PORT}<`)
 });

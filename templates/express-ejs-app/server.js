@@ -31,7 +31,7 @@ app.use((req, res) => {
     });
 });
 
-
+// start server
 app.listen(PORT, () => {
     console.log(`server running at >${PORT}<`)
 });
