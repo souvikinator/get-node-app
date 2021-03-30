@@ -3,9 +3,10 @@ const inquirer = require("inquirer");
 const emojis = require('node-emoji');
 const fs = require('fs-extra');
 const boxen = require('boxen');
-const { generatePackageJson } = require('./utils/createpackage');
+const { modifyPackageJson } = require('./utils/modifypackage');
 const { performChecks } = require('./utils/checks');
 const { getTemplateList } = require('./utils/getTemplateList');
+const downloadTemplate = require('gh-retrieve');
 const ora = require('ora');
 // TODO: rename vaiables properly
 // temporary storage of user input
@@ -65,10 +66,21 @@ console.log(boxen('create-express-app v1.0.0', { padding: 1, margin: 1, borderSt
         if (err) throw new Error(err.message);
         console.log(`${emojis.get("open_file_folder")} ${metadata.projectName}  created!`);
     });
-    // create package.json file
     //TODO: download template files
+    const downloadSpinner = ora("downloading template...").start();
+    await downloadTemplate({
+        author: "DarthCucumber",
+        repo: "create-express-app",
+        dir: `templates/${metadata.template}`,
+        outdir: metadata.projectName,
+        branch: "master"
+    }).then(() => {
+        downloadSpinner.succeed("templates downloaded");
+    }).catch(err => {
+        downloadSpinner.fail(err.message);
+    });
     //TODO: after download make changes to downloaded package.json
-    // modifyPackageJson(metadata);
+    modifyPackageJson(metadata);
     //TODO: perform: installs and boom! all ready
     // TODO: perform git init.
     //TODO: print instructions to use
