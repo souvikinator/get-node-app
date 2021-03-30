@@ -1,0 +1,30 @@
+{
+  "name": "create-express-app",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "bin": {
+    "create-express-app": "./create-express-app.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "express",
+    "graphql",
+    "rest",
+    "api",
+    "cli",
+    "create-express-app"
+  ],
+  "author": "souvikat001@gmail.com <souvikat001@gmail.com> (https://github.com/DarthCucumber)",
+  "license": "MIT",
+  "dependencies": {
+    "boxen": "^5.0.0",
+    "fs-extra": "^9.1.0",
+    "inquirer": "^8.0.0",
+    "lookpath": "^1.2.0",
+    "node-emoji": "^1.10.0",
+    "ora": "^5.4.0"
+  }
+}
