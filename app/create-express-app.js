@@ -5,26 +5,37 @@ const fs = require('fs-extra');
 const boxen = require('boxen');
 const { generatePackageJson } = require('./utils/createpackage');
 const { performChecks } = require('./utils/checks');
+const { getTemplateList } = require('./utils/getTemplateList');
 const ora = require('ora');
+// TODO: rename vaiables properly
 // temporary storage of user input
 let metadata = {
     pkgManager: "",
     template: "",
-    projectName: ""
+    projectName: "",
+    isgitPresent: false
 }
 // display banner
 console.log(boxen('create-express-app v1.0.0', { padding: 1, margin: 1, borderStyle: 'double' }));
-// check if node and (npm or yarn) is present
-const spinner = ora('performing checks').start();
 
 (async () => {
+    // perform check before proceeding
+    const checkspinner = ora('performing checks').start();
     let result = await performChecks().catch(err => {
-        spinner.fail(err.message);
+        checkspinner.fail(err.message);
         process.exit(1);
     });
-    metadata.pkgManager = result
-    spinner.succeed("checks complete\n");
-
+    Object.assign(metadata, result);
+    checkspinner.succeed("checks complete");
+    // fetch template list
+    const fetchspinner = ora("fetching template list").start();
+    const templateList = await getTemplateList().catch(err => {
+        fetchspinner.fail(err.message);
+    });
+    if (templateList.length === 0) {
+        fetchspinner.fail("Template list couldn't be fetched\n check you internet connection or try again");
+    }
+    fetchspinner.succeed("fetched template list\n");
     // ask general questions
     let answers = await inquirer
         .prompt([
@@ -32,7 +43,9 @@ const spinner = ora('performing checks').start();
                 type: 'list',
                 name: 'template',
                 message: `${emojis.get('card_file_box')} Select Template:`,
-                choices: ["simple-express-app", "simple-express-rest-api", "simple-express-gql-api"]
+                // TODO: get the list of templates from the github api
+                // choices: ["simple-express-app", "simple-express-rest-api", "simple-express-gql-api"]
+                choices: templateList
             }
             , {
                 type: 'input',
@@ -46,7 +59,7 @@ const spinner = ora('performing checks').start();
                 },
             }]);
     metadata.template = answers.template;
-    metadata.projectname = answers.projectname;
+    metadata.projectName = answers.projectname;
     // create directory
     fs.ensureDir(metadata.projectName, err => {
         if (err) throw new Error(err.message);
@@ -57,5 +70,6 @@ const spinner = ora('performing checks').start();
     //TODO: after download make changes to downloaded package.json
     // modifyPackageJson(metadata);
     //TODO: perform: installs and boom! all ready
+    // TODO: perform git init.
     //TODO: print instructions to use
 })()
