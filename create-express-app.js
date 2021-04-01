@@ -2,13 +2,15 @@
 const inquirer = require("inquirer");
 const emojis = require('node-emoji');
 const fs = require('fs-extra');
+const path = require('path');
+const os = require('os');
 const boxen = require('boxen');
 const { modifyPackageJson } = require('./utils/modifypackage');
 const { performChecks } = require('./utils/checks');
-const { getTemplateList } = require('./utils/getTemplateList');
-const downloadTemplate = require('gh-retrieve');
+const { getTemplateList } = require('./utils/templates');
 const ora = require('ora');
 // TODO: rename vaiables properly
+// FIXME: delete created file error occurs
 // temporary storage of user input
 let metadata = {
     pkgManager: "",
@@ -32,9 +34,11 @@ console.log(boxen('create-express-app v1.0.0', { padding: 1, margin: 1, borderSt
     const fetchspinner = ora("fetching template list").start();
     const templateList = await getTemplateList().catch(err => {
         fetchspinner.fail(err.message);
+        process.exit(1);
     });
     if (templateList.length === 0) {
         fetchspinner.fail("Template list couldn't be fetched\n check you internet connection or try again");
+        process.exit(1);
     }
     fetchspinner.succeed("fetched template list\n");
     // ask general questions
@@ -44,8 +48,6 @@ console.log(boxen('create-express-app v1.0.0', { padding: 1, margin: 1, borderSt
                 type: 'list',
                 name: 'template',
                 message: `${emojis.get('card_file_box')} Select Template:`,
-                // TODO: get the list of templates from the github api
-                // choices: ["simple-express-app", "simple-express-rest-api", "simple-express-gql-api"]
                 choices: templateList
             }
             , {
@@ -62,26 +64,31 @@ console.log(boxen('create-express-app v1.0.0', { padding: 1, margin: 1, borderSt
     metadata.template = answers.template;
     metadata.projectName = answers.projectname;
     // create directory
-    fs.ensureDir(metadata.projectName, err => {
-        if (err) throw new Error(err.message);
+    await fs.ensureDir(metadata.projectName).then(() => {
         console.log(`${emojis.get("open_file_folder")} ${metadata.projectName}  created!`);
-    });
-    //TODO: download template files
-    const downloadSpinner = ora("downloading template...").start();
-    await downloadTemplate({
-        author: "DarthCucumber",
-        repo: "create-express-app",
-        dir: `templates/${metadata.template}`,
-        outdir: metadata.projectName,
-        branch: "master"
-    }).then(() => {
-        downloadSpinner.succeed("templates downloaded");
     }).catch(err => {
-        downloadSpinner.fail(err.message);
+        console.log(err.message);
+        process.exit(1);
     });
-    //TODO: after download make changes to downloaded package.json
-    modifyPackageJson(metadata);
+    //TODO: move template from dir to current project files
+    const temDir = path.join(process.env.HOME, ".create-express-app-data", "templates", metadata.template);
+    await fs.copy(temDir, metadata.projectName)
+        .then(() => {
+            console.log(`${emojis.get('floppy_disk')} files copied!`);
+        })
+        .catch(err => {
+            console.log(`${emojis.get('x')} ${err.message}`);
+            process.exit(1);
+        })
+    //TODO: make changes to downloaded package.json
+    await modifyPackageJson(metadata).then(() => {
+        console.log(`${emojis.get('memo')} modified package.json`);
+    }).catch(err => {
+        console.log(`${emojis.get('x')} ${err.message}`);
+        process.exit(1);
+    });
     //TODO: perform: installs and boom! all ready
-    // TODO: perform git init.
+    //// git flow init -f
+    // remove remote origin origin
     //TODO: print instructions to use
-})()
+})();

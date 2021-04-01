@@ -1,34 +1,31 @@
-const { lookpath } = require('lookpath');
+const shell = require('shelljs');
+
 let result = {
     node: false,
     isgitPresent: false,
     pkgManager: ""
 }
-// OPTIMISE: improve this function
 exports.performChecks = async function () {
     // check if node present
-    let nodepath = await lookpath('node');
-    if (nodepath == undefined) throw new Error("NodeJs is not present");
+    if (!(shell.which('node'))) {
+        throw new Error("NodeJs is not present. Please install to proceed");
+    }
     result.node = true;
     //check if git is present
-    let gitpath = await lookpath('git');
-    if (gitpath != undefined) result.isgitPresent = true;
+    if (!(shell.which('git'))) {
+        throw new Error("Git is not present. Please install to proceed");
+    }
+    result.isgitPresent = true;
     //check for npm and yarn
     //if anyone is present then return
-    let npmpath = await lookpath('npm');
-    if (npmpath != undefined) {
+    if (shell.which('npm')) {
         result.pkgManager = "npm";
         return result;
     }
-
-    let yarnpath = await lookpath('yarn');
-    if (yarnpath != undefined) {
-        result.pkgmanager = "yarn";
+    if (shell.which('yarn')) {
+        result.pkgManager = "yarn";
         return result;
     }
-
     // if both undefined
-    if (npmpath == undefined && yarnpath == undefined) {
-        throw new Error(`Neither npm nor yarn is present. Please install any one to proceed.`);
-    }
+    throw new Error(`Neither npm nor yarn is present. Please install any one to proceed.`);
 }
