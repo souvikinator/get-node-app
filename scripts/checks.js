@@ -1,8 +1,7 @@
 const { lookpath } = require('lookpath');
 let result = {
-    node: false,
-    isgitPresent: false,
-    pkgManager: ""
+    pkgmanager: "",
+    pkgmoption: ""
 }
 exports.performChecks = async function () {
     // node present?
@@ -10,23 +9,23 @@ exports.performChecks = async function () {
     if (nodepath == undefined) {
         throw new Error("NodeJs is not present. Please install to proceed");
     }
-    result.node = true;
     // git present?
     const gitpath = await lookpath('git');
     if (gitpath == undefined) {
         throw new Error("Git is not present. Please install to proceed");
     }
-    result.isgitPresent = true;
     // npm?
     const npmpath = await lookpath('npm');
     if (npmpath != undefined) {
-        result.pkgManager = "npm";
+        result.pkgmanager = "npm";
+        result.pkgmoption = "--prefix";
         return result;
     }
     // yarn?
     const yarnpath = await lookpath('yarn');
     if (yarnpath != undefined) {
-        result.pkgManager = "yarn";
+        result.pkgmanager = "yarn";
+        result.pkgmoption = "--cwd";
         return result;
     }
     // if both undefined
