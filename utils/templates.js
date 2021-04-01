@@ -1,7 +1,8 @@
 const shell = require("shelljs");
 const fs = require('fs-extra');
 const path = require('path');
-const os=require('os');
+const os = require('os');
+const execa = require('execa');
 shell.config.silent = true;
 
 // if template doesn't exists then clone 
@@ -11,29 +12,26 @@ exports.getTemplateList = async function () {
     let templateList = [];
     const homeDir = os.homedir();
     // place to store logs and templates
-    const cloneDir = path.join(homeDir,".create-express-app-data","templates");
+    const cloneDir = path.join(homeDir, ".create-express-app-data", "templates");
     const cloneUrl = "git@github.com:DarthCucumber/create-express-app-templates.git";
-    const clonecmd = `git clone ${cloneUrl} ${cloneDir}`;
-    // note: it's caps C 
-    const pullcmd = `git -C ${cloneDir} pull origin master`;
     // if exists then update repo by git pull
     if (await dirExists(cloneDir)) {
-        if (shell.exec(pullcmd).code !== 0) {
-            // TODO: log in some file using shell.error();
-            console.log("some error occurred while updating templates");
-            shell.exit(1);
-        }
+        // TODO: log in some file using shell.error();
+        const { pullstdout } = await execa('git', ['-C', cloneDir, 'pull', 'origin', 'master'])
+            .catch(err => { throw new Error(err) });
+        // console.log(pullstdout);
     } else {
         // clone git repo if doesn't exists
-        if (shell.exec(clonecmd).code !== 0) {
-            console.log("some error occurred while downloading templates");
-            shell.exit(1);
-        }
+        const { clonestdout } = await execa('git', ['clone', cloneUrl, cloneDir])
+            .catch(err => { throw new Error(err) });
+        // console.log(clonestdout);
     }
     // get the template list
+    const exclude = [".git", "README.md", ".gitignore", ".vscode"];
     await getDirectories(cloneDir).then(contents => {
         templateList = contents.filter(c => {
-            return c !== ".git" && c !== "README.md" && c!=".gitignore";
+            // exclude those present in exclude list
+            return !exclude.includes(c);
         })
     }).catch(err => {
         throw new Error(err);

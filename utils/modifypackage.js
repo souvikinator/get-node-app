@@ -1,6 +1,5 @@
 const fs = require('fs-extra');
 const path = require('path');
-const emojis = require('node-emoji');
 
 exports.modifyPackageJson = async function (metadata) {
     const packagefile = path.join(metadata.projectName, "package.json");
