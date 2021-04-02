@@ -11,9 +11,16 @@ exports.modifyPackageJson = async function (metadata) {
         jsondata.name = metadata.projectname;
     }).catch(err => { throw new Error(err) });
     //save modified data back to package json
-    fs.writeJson(packagefile, jsondata,{
-        spaces:'\t'
+    fs.writeJson(packagefile, jsondata, {
+        spaces: '\t'
     }, err => {
         if (err) throw new Error(err);
     })
+}
+
+exports.removeDir = async function (dirpath) {
+    fs.remove(dirpath)
+        .catch(err => {
+            throw new Error(err);
+        })
 }
