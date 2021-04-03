@@ -14,7 +14,6 @@ exports.getTemplateList = async function () {
     const cloneUrl = "git@github.com:DarthCucumber/create-express-app-templates.git";
     // if exists then update repo by git pull
     if (await dirExists(cloneDir)) {
-        // TODO: log in some file using shell.error();
         const { pullstdout } = await execa('git', ['-C', cloneDir, 'pull', 'origin', 'master'])
             .catch(err => { throw new Error(err) });
     } else {
