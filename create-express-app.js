@@ -9,10 +9,10 @@ const ora = require('ora');
 const execa = require('execa');
 const logto = require('logto');
 const chalk = require('chalk');
-const { modifyPackageJson, removeDir } = require('./scripts/filehandling');
-const { performChecks } = require('./scripts/checks');
-const { getTemplateList } = require('./scripts/templates');
-const { getRandomPhrase, getDateTime } = require('./scripts/misc');
+const { modifyPackageJson, removeDir } = require('./helpers/filehandling');
+const { performChecks } = require('./helpers/checks');
+const { getTemplateList, downloadTemplate } = require('./helpers/templates');
+const { getRandomPhrase, getDateTime } = require('./helpers/misc');
 let metadata = {
     pkgmanager: "",
     template: "",
@@ -21,7 +21,7 @@ let metadata = {
     debug: ""
 }
 // display banner
-console.log(boxen('create-express-app v0.0.1', { padding: 0, margin: 0, borderColor: "magentaBright", borderStyle: "round" }));
+console.log(boxen('create-node-app v0.0.1', { borderColor: "magentaBright", borderStyle: "round" }));
 
 // check if debug mode is enabled
 const arg = process.argv.splice(2)[0];
@@ -57,7 +57,7 @@ const logger = new logto({ dir: logdir, file: logfile });
         process.exit(1);
     });
     spinner.succeed("fetched templates\n");
-    console.log(emojis.get('information_source'), 'To know mode about each templates: https://github.com/DarthCucumber/create-express-app-templates');
+    console.log(emojis.get('grey_exclamation'), 'To know mode about each templates: https://github.com/DarthCucumber/create-express-app-templates');
     // ask questions realted to project
     let answers = await inquirer
         .prompt([
@@ -80,6 +80,19 @@ const logger = new logto({ dir: logdir, file: logfile });
             }]);
     // store in metadata
     Object.assign(metadata, answers);
+    // {homedir}/.create-express-app/templates/{template-name}
+    const templateDir = path.join(os.homedir(), ".create-express-app-data", "templates");
+    // Download template
+    spinner.text=`${emojis.get('inbox_tray')} downloading templates...`;
+    spinner.start();
+    await downloadTemplate(templateDir, metadata.template).catch(err => {
+        // log error to log file
+        logger.log(err);
+        spinner.fail(`${chalk.redBright("some error occured while downloading templates. Make sure you have active internet connection\n")}`);
+        console.log(`log file can be found at ${chalk.cyan(logger.logfile)}`);
+        process.exit(1);
+    });
+    spinner.succeed(`${emojis.get('inbox_tray')} Template downloaded`);
     // create project directory
     await fs.ensureDir(metadata.projectname).then(() => {
         console.log(`${emojis.get("open_file_folder")} ${metadata.projectname}  created!`);
@@ -91,9 +104,8 @@ const logger = new logto({ dir: logdir, file: logfile });
         process.exit(1);
     });
     // copy selected template from app data to project dir
-    // {homedir}/.create-express-app/templates/{template-name}
-    const templateDir = path.join(os.homedir(), ".create-express-app-data", "templates", metadata.template);
-    await fs.copy(templateDir, metadata.projectname)
+    const tmplContent = path.join(templateDir, metadata.template);
+    await fs.copy(tmplContent, metadata.projectname)
         .then(() => {
             console.log(`${emojis.get('floppy_disk')} files copied!`);
         })
@@ -133,7 +145,8 @@ const logger = new logto({ dir: logdir, file: logfile });
         console.log(`log file can be found in ${chalk.cyan(logger.logfile)}`);
         process.exit(1);
     });
-    spinner.succeed(`${emojis.get('package')} node modules installed!`);
+    spinner.stop();
+    console.log(`${emojis.get('package')} node modules installed!`);
     // git init
     spinner.text = "initializing as git repo";
     spinner.start();
@@ -147,7 +160,8 @@ const logger = new logto({ dir: logdir, file: logfile });
         console.log(`log file can be found in ${chalk.cyan(logger.logfile)}`);
         process.exit(1);
     });
-    spinner.succeed(`${emojis.get('octopus')} git repo initialized`);
+    spinner.stop();
+    console.log(`${emojis.get('octopus')} git repo initialized`);
     console.log(`${emojis.get('sunglasses')} All set\n`);
     //print random phrase
     // why? just for fun ;)
