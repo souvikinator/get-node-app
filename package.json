@@ -1,22 +1,21 @@
 {
-  "name": "create-express-app",
+  "name": "create-node-app",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "bin": {
-    "create-express-app": "./create-express-app.js",
-    "cea": "./create-express-app.js"
+    "create-node-app": "./create-node-app.js",
+    "cna": "./create-node-app.js"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
-    "express",
-    "graphql",
-    "rest",
-    "api",
     "cli",
-    "create-express-app"
+    "create-node-app",
+    "nodejs",
+    "app",
+    "template"
   ],
   "author": "souvikat001@gmail.com <souvikat001@gmail.com> (https://github.com/DarthCucumber)",
   "license": "MIT",

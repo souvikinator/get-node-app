@@ -30,7 +30,7 @@ if (arg === "--debug" || arg === '-d') {
     console.log(emojis.get('bug'), chalk.cyan('debug mode enabled'));
 };
 // starting new logfile instance
-const logdir = path.join(os.homedir(), ".create-express-app-data", "logs");
+const logdir = path.join(os.homedir(), ".create-node-app-data", "logs");
 const logfile = `${getDateTime()}.log`;
 const logger = new logto({ dir: logdir, file: logfile });
 
@@ -52,12 +52,12 @@ const logger = new logto({ dir: logdir, file: logfile });
     const templateList = await getTemplateList().catch(err => {
         // log error to log file
         logger.log(err.stack);
-        spinner.fail(`${chalk.redBright("some error occured while fetching templates. Make sure you have active internet connection\n")}`);
+        spinner.fail(`${chalk.redBright("some error occured while fetching template list. Make sure you have active internet connection")}`);
         console.log(`log file can be found at ${chalk.cyan(logger.logfile)}`);
         process.exit(1);
     });
     spinner.succeed("fetched templates\n");
-    console.log(emojis.get('grey_exclamation'), 'To know mode about each templates: https://github.com/DarthCucumber/create-express-app-templates');
+    console.log('To know mode about each templates: https://github.com/DarthCucumber/create-express-app-templates');
     // ask questions realted to project
     let answers = await inquirer
         .prompt([
@@ -81,7 +81,7 @@ const logger = new logto({ dir: logdir, file: logfile });
     // store in metadata
     Object.assign(metadata, answers);
     // {homedir}/.create-express-app/templates/{template-name}
-    const templateDir = path.join(os.homedir(), ".create-express-app-data", "templates");
+    const templateDir = path.join(os.homedir(), ".create-node-app-data", "templates");
     // Download template
     spinner.text=`${emojis.get('inbox_tray')} downloading templates...`;
     spinner.start();
@@ -92,7 +92,7 @@ const logger = new logto({ dir: logdir, file: logfile });
         console.log(`log file can be found at ${chalk.cyan(logger.logfile)}`);
         process.exit(1);
     });
-    spinner.succeed(`${emojis.get('inbox_tray')} Template downloaded`);
+    spinner.succeed(`${emojis.get('inbox_tray')} Template downloaded\n`);
     // create project directory
     await fs.ensureDir(metadata.projectname).then(() => {
         console.log(`${emojis.get("open_file_folder")} ${metadata.projectname}  created!`);
@@ -121,7 +121,7 @@ const logger = new logto({ dir: logdir, file: logfile });
         })
     //make changes to package.json in project directory
     await modifyPackageJson(metadata).then(() => {
-        console.log(`${emojis.get('memo')} modified package.json\n`);
+        console.log(`${emojis.get('memo')} modified package.json`);
     }).catch(err => {
         // log error to log file
         logger.log(err.stack);
@@ -135,7 +135,7 @@ const logger = new logto({ dir: logdir, file: logfile });
     // perform installs as per the package manager selected in checks
     spinner.text = "installing node modules";
     spinner.start();
-    await execa(metadata.pkgmanager, ['install', metadata.pkgmoption, `${metadata.projectname}/`]).catch(err => {
+    await execa(metadata.pkgmanager, ['install', metadata.pkgmoption, `${metadata.projectname}`]).catch(err => {
         // log error to log file
         logger.log(err.stack);
         // remove project directory

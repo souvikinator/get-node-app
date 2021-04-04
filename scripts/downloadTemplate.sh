@@ -1,5 +1,6 @@
 #!/bin/bash
 
+#usage: arg1: output directory, arg2: repo clone url, arg3: template name
 #get no of args passed
 TOTALARGS="$#"
 if [[ $TOTALARGS -lt 3 ]]; then
@@ -12,7 +13,7 @@ DIR="$1"
 GITURL="$2"
 TMPLNAME="$3"
 
-#check if directory exits
+#check whether directory exits
 if [[ ! -d "$DIR" ]]; then
 	#make dir
 	mkdir "$DIR"
@@ -29,5 +30,6 @@ cd $DIR
 
 #perform sparse checkout
 git config core.sparsecheckout true
-echo "$TMPLNAME" >> .git/info/sparse-checkout
+echo "$TMPLNAME" >>.git/info/sparse-checkout
+git checkout master
 git pull origin master
