@@ -19,7 +19,7 @@ let metadata = {
     projectname: "",
     pkgmoption: "",  //package manager option(--cwd/--prefix)
     debug: "",
-    appdatadir:""
+    appdatadir: ""
 }
 // display banner
 console.log(boxen('get-node-app v0.0.1', { borderColor: "magentaBright", borderStyle: "round" }));
@@ -32,7 +32,7 @@ if (arg === "--debug" || arg === '-d') {
     console.log(emojis.get('bug'), chalk.cyan('debug mode enabled'));
 };
 // starting new logfile instance
-metadata.appdatadir=path.join(os.homedir(),".get-node-app-data");
+metadata.appdatadir = path.join(os.homedir(), ".get-node-app-data");
 const logdir = path.join(metadata.appdatadir, "logs");
 const logfile = `${getDateTime()}.log`;
 const logger = new logto({ dir: logdir, file: logfile });
@@ -84,7 +84,7 @@ const logger = new logto({ dir: logdir, file: logfile });
     // store in metadata
     Object.assign(metadata, answers);
     // {homedir}/.create-express-app/templates/{template-name}
-    const templateDir = path.join(metadata.appdatadir,"templates");
+    const templateDir = path.join(metadata.appdatadir, "templates");
     // Download template
     spinner.text = `downloading templates...`;
     spinner.start();
@@ -130,9 +130,13 @@ const logger = new logto({ dir: logdir, file: logfile });
         process.exit(1);
     });
     // perform installs as per the package manager selected in checks
+    // for npm
+    let args = ["install", metadata.pkgmoption, metadata.projectname, metadata.projectname];
+    // for yarn
+    if (metadata.pkgmanager === "yarn") args = ["install", metadata.pkgmoption, metadata.projectname];
     spinner.text = "installing node modules";
     spinner.start();
-    await execa(metadata.pkgmanager, ['install', metadata.pkgmoption, `${metadata.projectname}`]).catch(err => {
+    await execa(metadata.pkgmanager, args).catch(err => {
         // log error to log file
         logger.log(err.stack);
         // remove project directory
