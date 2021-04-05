@@ -22,6 +22,7 @@ exports.modifyPackageJson = async function (metadata) {
     })
 }
 
+// elevated privileges
 exports.removeDir = async function (dirpath) {
     fs.remove(dirpath)
         .catch(err => {

@@ -24,11 +24,20 @@ exports.getTemplateList = async function () {
 }
 
 // download selected template
-// TODO: ADD WINDOWS SUPPORT?
 exports.downloadTemplate = async function (outDir, templateName) {
     // __dirname is /helpers but we want the sh script from /scripts
     // therefore __dirname/../scripts/downloadTemplate.sh
-    let workerScript = path.join(__dirname, "..", "scripts", "downloadTemplate.sh");
+    const workerScript = path.join(__dirname, "..", "scripts", "downloadTemplate.sh");
+    const platform = process.platform;
+    // do chmod +x
+    let cmd = "chmod"
+    let args = ["+x", workerScript];
+    if (platform === "win32") {
+        cmd = "ICACLS";
+        args = [workerScript, "/grant:r", "users:(RX)", "/C"]
+    }
+    await execa(cmd, args).catch(err => { throw new Error(err) });
+    // execute worker script
     await execa(workerScript, [outDir, gitUrl, templateName])
         .catch(err => {
             throw new Error(err);

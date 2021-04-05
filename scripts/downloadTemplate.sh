@@ -1,5 +1,3 @@
-#!/bin/bash
-
 #usage: arg1: output directory, arg2: repo clone url, arg3: template name
 #get no of args passed
 TOTALARGS="$#"
