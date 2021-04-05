@@ -1,10 +1,9 @@
-const fs = require('fs-extra');
 const axios = require('axios');
 const execa = require('execa');
 const path = require('path');
 
-const tmplUrl = "https://api.github.com/repos/DarthCucumber/create-node-app-templates/contents";
-const gitUrl = "git@github.com:DarthCucumber/create-node-app-templates.git";
+const tmplUrl = "https://api.github.com/repos/DarthCucumber/get-node-app-templates/contents";
+const gitUrl = "git@github.com:DarthCucumber/get-node-app-templates.git";
 
 // gets only template list
 exports.getTemplateList = async function () {

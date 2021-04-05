@@ -18,19 +18,22 @@ let metadata = {
     template: "",
     projectname: "",
     pkgmoption: "",  //package manager option(--cwd/--prefix)
-    debug: ""
+    debug: "",
+    appdatadir:""
 }
 // display banner
-console.log(boxen('create-node-app v0.0.1', { borderColor: "magentaBright", borderStyle: "round" }));
+console.log(boxen('get-node-app v0.0.1', { borderColor: "magentaBright", borderStyle: "round" }));
 
 // check if debug mode is enabled
+// nothing, just logs won't be deleted even if everything went well 
 const arg = process.argv.splice(2)[0];
 if (arg === "--debug" || arg === '-d') {
     metadata.debug = true;
     console.log(emojis.get('bug'), chalk.cyan('debug mode enabled'));
 };
 // starting new logfile instance
-const logdir = path.join(os.homedir(), ".create-node-app-data", "logs");
+metadata.appdatadir=path.join(os.homedir(),".get-node-app-data");
+const logdir = path.join(metadata.appdatadir, "logs");
 const logfile = `${getDateTime()}.log`;
 const logger = new logto({ dir: logdir, file: logfile });
 
@@ -64,13 +67,13 @@ const logger = new logto({ dir: logdir, file: logfile });
             {
                 type: 'list',
                 name: 'template',
-                message: `${emojis.get('card_file_box')} Select Template:`,
+                message: `Select Template:`,
                 choices: templateList
             }
             , {
                 type: 'input',
                 name: 'projectname',
-                message: `${emojis.get('gear')} Enter Project Name:`,
+                message: `Enter Project Name:`,
                 validate: function (project) {
                     if (project.length === 0) {
                         return "project name cannot be empty";
@@ -81,9 +84,9 @@ const logger = new logto({ dir: logdir, file: logfile });
     // store in metadata
     Object.assign(metadata, answers);
     // {homedir}/.create-express-app/templates/{template-name}
-    const templateDir = path.join(os.homedir(), ".create-node-app-data", "templates");
+    const templateDir = path.join(metadata.appdatadir,"templates");
     // Download template
-    spinner.text=`${emojis.get('inbox_tray')} downloading templates...`;
+    spinner.text = `downloading templates...`;
     spinner.start();
     await downloadTemplate(templateDir, metadata.template).catch(err => {
         // log error to log file
@@ -92,43 +95,37 @@ const logger = new logto({ dir: logdir, file: logfile });
         console.log(`log file can be found at ${chalk.cyan(logger.logfile)}`);
         process.exit(1);
     });
-    spinner.succeed(`${emojis.get('inbox_tray')} Template downloaded\n`);
+    spinner.succeed(`Template downloaded\n`);
     // create project directory
     await fs.ensureDir(metadata.projectname).then(() => {
-        console.log(`${emojis.get("open_file_folder")} ${metadata.projectname}  created!`);
+        spinner.succeed(`Projects Created: ${metadata.projectname}`);
     }).catch(err => {
         // log error to log file
         logger.log(err.stack);
-        console.log(`${emojis.get('x')}${chalk.redBright(err.message)}`);
+        spinner.fail(`${chalk.redBright(err.message)}`);
         console.log(`log file can be found at ${chalk.cyan(logger.logfile)}`);
         process.exit(1);
     });
     // copy selected template from app data to project dir
     const tmplContent = path.join(templateDir, metadata.template);
-    await fs.copy(tmplContent, metadata.projectname)
-        .then(() => {
-            console.log(`${emojis.get('floppy_disk')} files copied!`);
-        })
-        .catch(err => {
-            // log error to log file
-            logger.log(err.stack);
-            // remove project directory
-            removeDir(metadata.projectname);
-            //then log error
-            console.log(`${emojis.get('x')}${chalk.redBright(err.message)}`);
-            console.log(`log file can be found at ${chalk.cyan(logger.logfile)}`);
-            process.exit(1);
-        })
-    //make changes to package.json in project directory
-    await modifyPackageJson(metadata).then(() => {
-        console.log(`${emojis.get('memo')} modified package.json`);
-    }).catch(err => {
+    await fs.copy(tmplContent, metadata.projectname).catch(err => {
         // log error to log file
         logger.log(err.stack);
         // remove project directory
         removeDir(metadata.projectname);
         //then log error
-        console.log(`${emojis.get('x')}${chalk.redBright(err.message)}`);
+        spinner.fail(`${chalk.redBright(err.message)}`);
+        console.log(`log file can be found at ${chalk.cyan(logger.logfile)}`);
+        process.exit(1);
+    })
+    //make changes to package.json in project directory
+    await modifyPackageJson(metadata).catch(err => {
+        // log error to log file
+        logger.log(err.stack);
+        // remove project directory
+        removeDir(metadata.projectname);
+        //then log error
+        spinner.fail(`${chalk.redBright(err.message)}`);
         console.log(`log file can be found at ${chalk.cyan(logger.logfile)}`);
         process.exit(1);
     });
@@ -141,27 +138,25 @@ const logger = new logto({ dir: logdir, file: logfile });
         // remove project directory
         removeDir(metadata.projectname);
         //then log error
-        sp.fail(chalk.redBright(err.message));
+        spinner.fail(chalk.redBright(err.message));
         console.log(`log file can be found in ${chalk.cyan(logger.logfile)}`);
         process.exit(1);
     });
-    spinner.stop();
-    console.log(`${emojis.get('package')} node modules installed!`);
+    spinner.succeed(`node modules installed!`);
     // git init
     spinner.text = "initializing as git repo";
     spinner.start();
-    await execa('git', ['init', `${metadata.projectname}/`]).catch(err => {
+    await execa('git', ['init', `${metadata.projectname}`]).catch(err => {
         // log error to log file
         logger.log(err.stack);
         // remove project directory
         removeDir(metadata.projectname);
         //then log error
-        sp.fail(chalk.redBright(err.message));
+        spinner.fail(chalk.redBright(err.message));
         console.log(`log file can be found in ${chalk.cyan(logger.logfile)}`);
         process.exit(1);
     });
-    spinner.stop();
-    console.log(`${emojis.get('octopus')} git repo initialized`);
+    spinner.succeed(`git repo initialized`);
     console.log(`${emojis.get('sunglasses')} All set\n`);
     //print random phrase
     // why? just for fun ;)

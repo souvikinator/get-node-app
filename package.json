@@ -1,18 +1,19 @@
 {
-  "name": "create-node-app",
+  "name": "get-node-app",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "bin": {
-    "create-node-app": "./create-node-app.js",
-    "cna": "./create-node-app.js"
+    "get-node-app": "./get-node-app.js",
+    "gna": "./get-node-app.js"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
     "cli",
-    "create-node-app",
+    "get-node-template",
+    "get-node-app",
     "nodejs",
     "app",
     "template"

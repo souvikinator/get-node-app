@@ -15,8 +15,10 @@ TMPLNAME="$3"
 
 #check whether directory exits
 if [[ ! -d "$DIR" ]]; then
+	echo "$DIR does not exist"
 	#make dir
 	mkdir "$DIR"
+	echo "$DIR created"
 	#get inside the folder
 	cd $DIR
 	#git init
