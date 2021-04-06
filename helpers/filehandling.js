@@ -1,18 +1,14 @@
 const fs = require('fs-extra');
 const path = require('path');
 
-exports.modifyPackageJson = async function (metadata) {
-    const packagefile = path.join(metadata.projectname, "package.json");
+exports.modifyPackageJson = async function (projectname) {
+    const packagefile = path.join(projectname, "package.json");
     // read file and make changes
-    /**
-     * changes "name"
-     * sets "author" empty if present
-     */
     let jsondata;
     await fs.readJson(packagefile).then(packageObj => {
         jsondata = packageObj;
         // set project name
-        jsondata.name = metadata.projectname;
+        jsondata.name = projectname;
     }).catch(err => { throw new Error(err) });
     //save modified data back to package json
     fs.writeJson(packagefile, jsondata, {
