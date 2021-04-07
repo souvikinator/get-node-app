@@ -20,16 +20,17 @@ let metadata = {
     appdatadir: ""
 }
 // display banner
-console.log(boxen('get-node-app v0.0.1', { borderColor: "magentaBright", borderStyle: "round" }));
+console.log(boxen('get-node-app v0.1.0', { borderColor: "magentaBright", borderStyle: "round" }));
 // starting new logfile instance
 metadata.appdatadir = path.join(os.homedir(), ".get-node-app-data");
 const logdir = path.join(metadata.appdatadir, "logs");
 const logfile = `${getDateTime()}.log`;
 const logger = new logto({ dir: logdir, file: logfile });
 
+let spinner = ora('Performing checks').start();
+
 (async () => {
     // perform checks before proceeding
-    let spinner = ora('Performing checks').start();
     let result = await performChecks().catch(err => {
         handleError(err);
     });
@@ -110,12 +111,6 @@ const logger = new logto({ dir: logdir, file: logfile });
     console.log(boxen(rp, { padding: 0, margin: 0, borderColor: "yellow", borderStyle: "round" }));
     // reached here => no errors => no need of log files. remove em
     // if debug mode then don't delete log
-    // TODO:Asks for escalted previledges
-    if (!metadata.debug) {
-        removeDir(logdir);
-        return;
-    };
-    console.log(`log file can be found at`, chalk.cyan(logger.logfile));
 })();
 
 // not the elegant way, but works lol
