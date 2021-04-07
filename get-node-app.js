@@ -16,7 +16,6 @@ let metadata = {
     pkgmanager: "",
     template: "",
     projectname: "",
-    pkgmoption: "",  //package manager option(--cwd/--prefix)
     appdatadir: ""
 }
 // display banner
@@ -93,7 +92,7 @@ let spinner = ora('Performing checks').start();
     // install node modules
     spinner.text = "Installing node modules";
     spinner.start();
-    await installModules(metadata.pkgmanager, metadata.pkgmoption, metadata.projectname).catch(err => {
+    await installModules(metadata.pkgmanager, metadata.projectname).catch(err => {
         handleError(err);
     });
     spinner.succeed(`Node modules installed!`);

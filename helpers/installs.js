@@ -1,15 +1,14 @@
 const execa = require('execa');
 
-exports.installModules = async function (pkgmanager, pkgmoption, cwd) {
-    // perform installs as per the package manager selected in checks
-    // for npm
-    let args = ["install", pkgmoption, cwd, cwd];
-    // for yarn
-    if (pkgmanager === "yarn") args = ["install", pkgmoption, cwd];
-    await execa(pkgmanager, args).catch(err => {
+exports.installModules = async function (pkgmanager, cwd) {
+    const originalcwd = process.cwd();
+    // change directory to project dir
+    process.chdir(cwd);
+    await execa(pkgmanager, ['install']).catch(err => {
         throw new Error(err);
     });
-
+    // change to original directory
+    process.chdir(originalcwd);
 }
 
 exports.gitInit = async function (cwd) {

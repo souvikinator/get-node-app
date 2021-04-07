@@ -1,7 +1,6 @@
 const { lookpath } = require('lookpath');
 let result = {
-    pkgmanager: "",
-    pkgmoption: ""
+    pkgmanager: ""
 }
 exports.performChecks = async function () {
     // node present?
@@ -18,14 +17,12 @@ exports.performChecks = async function () {
     const npmpath = await lookpath('npm');
     if (npmpath != undefined) {
         result.pkgmanager = "npm";
-        result.pkgmoption = "--prefix";
         return result;
     }
     // yarn?
     const yarnpath = await lookpath('yarn');
     if (yarnpath != undefined) {
         result.pkgmanager = "yarn";
-        result.pkgmoption = "--cwd";
         return result;
     }
     // if both undefined
