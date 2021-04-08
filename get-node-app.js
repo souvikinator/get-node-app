@@ -25,6 +25,8 @@ metadata.appdatadir = path.join(os.homedir(), ".get-node-app-data");
 const logdir = path.join(metadata.appdatadir, "logs");
 const logfile = `${getDateTime()}.log`;
 const logger = new logto({ dir: logdir, file: logfile });
+// log the platform
+logger.log(`platform: ${process.platform}`);
 
 let spinner = ora('Performing checks').start();
 
@@ -35,6 +37,7 @@ let spinner = ora('Performing checks').start();
     });
     Object.assign(metadata, result);
     spinner.succeed("Checks complete");
+    logger.log("Checks complete");
     // fetch template list
     spinner.text = "Fetching template..."
     spinner.start();
@@ -42,6 +45,7 @@ let spinner = ora('Performing checks').start();
         handleError(err);
     });
     spinner.succeed("Fetched templates\n");
+    logger.log("Fetched templates");
     console.log('To know mode about each templates: https://github.com/DarthCucumber/create-express-app-templates');
     // ask questions realted to project
     let answers = await inquirer
@@ -65,7 +69,7 @@ let spinner = ora('Performing checks').start();
             }]);
     // store in metadata
     Object.assign(metadata, answers);
-    // {homedir}/.create-express-app/templates/{template-name}
+    // {homedir}/.get-node-app-data/templates/{template-name}
     const templateDir = path.join(metadata.appdatadir, "templates");
     // Download template
     spinner.text = `Downloading templates...`;
@@ -74,9 +78,11 @@ let spinner = ora('Performing checks').start();
         handleError(err);
     });
     spinner.succeed(`Template downloaded\n`);
+    logger.log("templates downloaded");
     // create project directory
     await fs.ensureDir(metadata.projectname).then(() => {
         spinner.succeed(`Projects Created: ${metadata.projectname}`);
+        logger.log(`project created: ${metadata.projectname}`);
     }).catch(err => {
         handleError(err);
     });
@@ -85,10 +91,12 @@ let spinner = ora('Performing checks').start();
     await fs.copy(tmplContent, metadata.projectname).catch(err => {
         handleError(err);
     })
+    logger.log(`copied file from ${templateDir} to ${metadata.template}`);
     //make changes to package.json in project directory
     await modifyPackageJson(metadata.projectname).catch(err => {
         handleError(err);
     });
+    logger.log(`modified package.json`);
     // install node modules
     spinner.text = "Installing node modules";
     spinner.start();
@@ -96,6 +104,7 @@ let spinner = ora('Performing checks').start();
         handleError(err);
     });
     spinner.succeed(`Node modules installed!`);
+    logger.log(`node modules installed`);
     // git init
     spinner.text = "Initializing as git repo";
     spinner.start();
@@ -104,17 +113,21 @@ let spinner = ora('Performing checks').start();
     });
     spinner.succeed(`git repo Initialized\n`);
     console.log(`ヽ(^O^)ノ All set\n`);
+    logger.log(`git repo initialized and All set`);
     //print random phrase
     // why? just for fun ;)
     let rp = getRandomPhrase();
     console.log(boxen(rp, { padding: 0, margin: 0, borderColor: "yellow", borderStyle: "round" }));
-    // reached here => no errors => no need of log files. remove em
-    // if debug mode then don't delete log
+    logger.log(`random phrase generated`);
+
+    console.log(`\nlog file can be found in ${chalk.cyan(logger.logfile)}`);
+    logger.end();
 })();
 
 // not the elegant way, but works lol
 function handleError(err) {
     logger.log(err.stack);
+    logger.end();
     removeDir(metadata.projectname);
     spinner.fail(chalk.redBright(err.message));
     console.log(`log file can be found in ${chalk.cyan(logger.logfile)}`);
