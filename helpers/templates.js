@@ -7,13 +7,18 @@ const gitUrl = "https://github.com/DarthCucumber/get-node-app-templates.git";
 // gets only template list
 exports.getTemplateList = async function () {
     let tmplist = [];
-    const exclude = [".git", "README.md", ".gitignore", ".vscode", "LICENSE"];
+    const exclude = ["LICENSE"];
     await axios.get(tmplUrl)
         .then(resp => {
             let data = resp.data;
+            data = data.filter(e => e.type === "dir");
             data.forEach(e => {
                 let tmplName = e.name;
-                if (!exclude.includes(tmplName)) tmplist.push(tmplName);
+                // console.log(tmplName[0])
+                // exclude: hidden files, md files and those included in exlude list
+                if (tmplName[0] !== '.' && tmplName.substring(-2) !== ".md" && !exclude.includes(tmplName)) {
+                    tmplist.push(tmplName);
+                }
             })
         })
         .catch(err => {
