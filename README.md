@@ -26,7 +26,9 @@ Easy peazy! now get into the folder and do your stuff ;)
 
 ## Contribution
 
-Before making any PR, working on a fix or new feature, make sure you open a new Issue(if doesn't exist).
+- Before making any PR, working on a fix or new feature, make sure you open a new Issue(if doesn't exist). 
+
+- Make sure to work on a new branch. Branch should have a short and descriptive name.
 
 ### Facing issue or found a bug?
 
