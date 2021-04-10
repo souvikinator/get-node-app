@@ -1,5 +1,7 @@
 var xorshift = require('xorshift');
-const boxen = require('boxen');
+/**
+ * @type {string[]} list of phrases 
+ */
 const phraselist = [
   "ah shit! here we go again",
   "I swear! the coffee jar was filled c[_]",
@@ -17,18 +19,29 @@ const phraselist = [
   "Ah! another JS developer",
   "made with !== ❤️"
 ]
-
+/**
+ * 
+ * @returns random pharse from the phrase list
+ */
 exports.getRandomPhrase = function () {
   let phraselistlen = phraselist.length;
   let i = uniformint(0, phraselistlen);
   return (phraselist[i]);
 }
 
-// generate random number between range
+/**
+ * generate random number between two range
+ * @param {number} a - minimum
+ * @param {number} b - maximum
+ * @returns random number between a and b
+ */
 function uniformint(a, b) {
   return Math.floor(a + xorshift.random() * (b - a));
 }
 
+/**
+ * @returns current date and time in format date_time
+ */
 exports.getDateTime = function () {
   let dt = new Date();
   return `${dt.getDay()}-${dt.getMonth()}-${dt.getFullYear()}_${dt.getHours()}-${dt.getMinutes()}-${dt.getSeconds()}`;

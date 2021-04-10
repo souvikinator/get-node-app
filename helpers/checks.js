@@ -1,7 +1,9 @@
 const { lookpath } = require('lookpath');
-let result = {
-    pkgmanager: ""
-}
+
+/**
+ * performs checks: node, git, yarn, npm 
+ * @returns package manager, yarn/npm
+ */
 exports.performChecks = async function () {
     // node present?
     const nodepath = await lookpath('node');
@@ -16,14 +18,12 @@ exports.performChecks = async function () {
     // npm?
     const npmpath = await lookpath('npm');
     if (npmpath != undefined) {
-        result.pkgmanager = "npm";
-        return result;
+        return "npm"
     }
     // yarn?
     const yarnpath = await lookpath('yarn');
     if (yarnpath != undefined) {
-        result.pkgmanager = "yarn";
-        return result;
+        return "yarn";
     }
     // if both undefined
     throw new Error(`Neither npm nor yarn is present. Please install any one to proceed.`);

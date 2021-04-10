@@ -11,7 +11,7 @@ const { modifyPackageJson, removeDir } = require('./helpers/filehandling');
 const { performChecks } = require('./helpers/checks');
 const { getTemplateList, downloadTemplate } = require('./helpers/templates');
 const { getRandomPhrase, getDateTime } = require('./helpers/misc');
-const { installModules, gitInit } = require('./helpers/installs');
+const { setupProject } = require('./helpers/installs');
 let metadata = {
     pkgmanager: "",
     template: "",
@@ -31,11 +31,15 @@ logger.log(`platform: ${process.platform}`);
 let spinner = ora('Performing checks').start();
 
 (async () => {
-    // perform checks before proceeding
+    /**
+     * node, git, npm or yarn present?
+     * return package manager installed in the system
+     * if both yarn and npm installed then npm is preferred
+     **/
     let result = await performChecks().catch(err => {
         handleError(err);
     });
-    Object.assign(metadata, result);
+    metadata.pkgmanager=result;
     spinner.succeed("Checks complete");
     logger.log("Checks complete");
     // fetch template list
@@ -46,8 +50,10 @@ let spinner = ora('Performing checks').start();
     });
     spinner.succeed("Fetched templates\n");
     logger.log("Fetched templates");
-    console.log('To know mode about each templates: https://github.com/DarthCucumber/create-express-app-templates');
-    // ask questions realted to project
+    console.log('know more about each templates or create your own: https://github.com/DarthCucumber/create-express-app-templates');
+    /**
+     * allow users to select template and project name
+     * */ 
     let answers = await inquirer
         .prompt([
             {
@@ -92,34 +98,23 @@ let spinner = ora('Performing checks').start();
         handleError(err);
     })
     logger.log(`copied file from ${templateDir} to ${metadata.template}`);
-    //make changes to package.json in project directory
-    await modifyPackageJson(metadata.projectname).catch(err => {
-        handleError(err);
-    });
-    logger.log(`modified package.json`);
-    // install node modules
-    spinner.text = "Installing node modules";
+    // modeify package file, install node modules and git init
+    spinner.text = "Setting up project";
     spinner.start();
-    await installModules(metadata.pkgmanager, metadata.projectname).catch(err => {
+    await setupProject(metadata.pkgmanager, metadata.projectname).catch(err => {
         handleError(err);
     });
-    spinner.succeed(`Node modules installed!`);
-    logger.log(`node modules installed`);
-    // git init
-    spinner.text = "Initializing as git repo";
-    spinner.start();
-    await gitInit(metadata.projectname).catch(err => {
-        handleError(err);
-    });
-    spinner.succeed(`git repo Initialized\n`);
+    spinner.succeed(`Project setup complete\n`);
+    logger.log(`Project setup complete`);
     console.log(`＼(＾O＾)／ All set\n`);
-    logger.log(`git repo initialized and All set`);
-    //print random phrase
-    // why? just for fun ;)
+    /**
+     * print random phrase
+     * why? just for fun ;)
+     */
     let rp = getRandomPhrase();
     console.log(boxen(rp, { padding: 0, margin: 0, borderColor: "yellow", borderStyle: "round" }));
     logger.log(`random phrase generated`);
-
+    // TODO: show only when error occurs otherwise delete
     console.log(`\nlog file can be found in ${chalk.cyan(logger.logfile)}`);
     logger.end();
 })();

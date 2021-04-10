@@ -1,8 +1,12 @@
 const fs = require('fs-extra');
-const path = require('path');
 
-exports.modifyPackageJson = async function (projectname) {
-    const packagefile = path.join(projectname, "package.json");
+/**
+ * modifies package.json in project directory
+ * use it after process.chdir(projectdir)
+ * @param {String} projectname - takes in project name
+ */
+exports.modifyPkgFile = async function (projectname) {
+    const packagefile = "package.json";
     // read file and make changes
     let jsondata;
     await fs.readJson(packagefile).then(packageObj => {
@@ -18,10 +22,6 @@ exports.modifyPackageJson = async function (projectname) {
     })
 }
 
-// elevated privileges
-exports.removeDir = async function (dirpath) {
-    fs.remove(dirpath)
-        .catch(err => {
-            throw new Error(err);
-        })
+exports.removeDir = async function (dir) {
+    fs.remove(dir).catch(err => { throw new Error(err) });
 }

@@ -4,18 +4,20 @@ const { sparseDownload } = require('gh-retrieve');
 const tmplUrl = "https://api.github.com/repos/DarthCucumber/get-node-app-templates/contents";
 const gitUrl = "https://github.com/DarthCucumber/get-node-app-templates.git";
 
-// gets only template list
+/**
+ * @returns list of templates from github repository
+ */
 exports.getTemplateList = async function () {
     let tmplist = [];
     const exclude = ["LICENSE"];
+    // request to github api
     await axios.get(tmplUrl)
         .then(resp => {
             let data = resp.data;
             data = data.filter(e => e.type === "dir");
             data.forEach(e => {
                 let tmplName = e.name;
-                // console.log(tmplName[0])
-                // exclude: hidden files, md files and those included in exlude list
+                //excluding hidden files, md files and those included in exlude list
                 if (tmplName[0] !== '.' && tmplName.substring(-2) !== ".md" && !exclude.includes(tmplName)) {
                     tmplist.push(tmplName);
                 }
@@ -27,7 +29,11 @@ exports.getTemplateList = async function () {
     return tmplist;
 }
 
-// download selected template
+/**
+ * @param {string} outDir - output directory where template needs to be downloaded
+ * i.e {homedir}/.get-node-app/templates
+ * @param {string} templateName - name of the template one wants to download
+ */
 exports.downloadTemplate = async function (outDir, templateName) {
     await sparseDownload({
         cloneurl: gitUrl,
