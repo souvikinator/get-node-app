@@ -112,7 +112,7 @@ let spinner = ora('Performing checks').start();
         handleError(err);
     });
     spinner.succeed(`git repo Initialized\n`);
-    console.log(`ヽ(^O^)ノ All set\n`);
+    console.log(`＼(＾O＾)／ All set\n`);
     logger.log(`git repo initialized and All set`);
     //print random phrase
     // why? just for fun ;)
