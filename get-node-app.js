@@ -3,11 +3,10 @@ const inquirer = require("inquirer");
 const fs = require('fs-extra');
 const path = require('path');
 const os = require('os');
-const boxen = require('boxen');
 const ora = require('ora');
 const logto = require('logto');
 const chalk = require('chalk');
-const { modifyPackageJson, removeDir } = require('./helpers/filehandling');
+const { removeDir } = require('./helpers/filehandling');
 const { performChecks } = require('./helpers/checks');
 const { getTemplateList, downloadTemplate } = require('./helpers/templates');
 const { getRandomPhrase, getDateTime } = require('./helpers/misc');
@@ -16,10 +15,22 @@ let metadata = {
     pkgmanager: "",
     template: "",
     projectname: "",
-    appdatadir: ""
+    appdatadir: "",
+    debug: false
 }
+// TODO: improve logging
 // display banner
-console.log(boxen('get-node-app v0.1.0', { borderColor: "magentaBright", borderStyle: "round" }));
+console.log(chalk.magentaBright.bold(`
+ _  _  _
+/_\/\/ //_| v0.1.0
+_/
+`));
+// check if debug mode enabled
+const args = process.argv.slice(2);
+if (args[0] === "-d" || args[0] === "--debug") {
+    metadata.debug = true;
+    console.log(chalk.yellow('> debug mode enabled'));
+}
 // starting new logfile instance
 metadata.appdatadir = path.join(os.homedir(), ".get-node-app-data");
 const logdir = path.join(metadata.appdatadir, "logs");
@@ -39,7 +50,7 @@ let spinner = ora('Performing checks').start();
     let result = await performChecks().catch(err => {
         handleError(err);
     });
-    metadata.pkgmanager=result;
+    metadata.pkgmanager = result;
     spinner.succeed("Checks complete");
     logger.log("Checks complete");
     // fetch template list
@@ -50,10 +61,10 @@ let spinner = ora('Performing checks').start();
     });
     spinner.succeed("Fetched templates\n");
     logger.log("Fetched templates");
-    console.log('know more about each templates or create your own: https://github.com/DarthCucumber/create-express-app-templates');
+    console.log('know more about each templates or create your own: https://github.com/DarthCucumber/get-node-app-templates');
     /**
      * allow users to select template and project name
-     * */ 
+     * */
     let answers = await inquirer
         .prompt([
             {
@@ -87,7 +98,7 @@ let spinner = ora('Performing checks').start();
     logger.log("templates downloaded");
     // create project directory
     await fs.ensureDir(metadata.projectname).then(() => {
-        spinner.succeed(`Projects Created: ${metadata.projectname}`);
+        spinner.succeed(`Project Created: ${metadata.projectname}`);
         logger.log(`project created: ${metadata.projectname}`);
     }).catch(err => {
         handleError(err);
@@ -112,18 +123,24 @@ let spinner = ora('Performing checks').start();
      * why? just for fun ;)
      */
     let rp = getRandomPhrase();
-    console.log(boxen(rp, { padding: 0, margin: 0, borderColor: "yellow", borderStyle: "round" }));
+    console.log(chalk.magentaBright.bold(rp),"\n");
     logger.log(`random phrase generated`);
-    // TODO: show only when error occurs otherwise delete
-    console.log(`\nlog file can be found in ${chalk.cyan(logger.logfile)}`);
-    logger.end();
+    /**
+     * keep log file if debug mode is enabled else delete log file
+     */
+    if (metadata.debug) {
+        console.log(`log file can be found in ${chalk.cyan(logger.logfile)}\n`);
+        logger.end();
+        return;
+    }
+    removeDir(path.join(logdir, logfile));
 })();
 
 // not the elegant way, but works lol
-function handleError(err) {
+async function handleError(err) {
     logger.log(err.stack);
     logger.end();
-    removeDir(metadata.projectname);
+    await removeDir(metadata.projectname);
     spinner.fail(chalk.redBright(err.message));
     console.log(`log file can be found in ${chalk.cyan(logger.logfile)}`);
     process.exit(1);

@@ -22,6 +22,10 @@ exports.modifyPkgFile = async function (projectname) {
     })
 }
 
+/**
+ * deletes a directory
+ * @param {string} dir - directory path
+ */
 exports.removeDir = async function (dir) {
     fs.remove(dir).catch(err => { throw new Error(err) });
 }

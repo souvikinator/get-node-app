@@ -22,7 +22,6 @@
   "license": "MIT",
   "dependencies": {
     "axios": "^0.21.1",
-    "boxen": "^5.0.0",
     "chalk": "^4.1.0",
     "execa": "^5.0.0",
     "fs-extra": "^9.1.0",
@@ -30,7 +29,6 @@
     "inquirer": "^8.0.0",
     "logto": "^0.1.0",
     "lookpath": "^1.2.0",
-    "node-emoji": "^1.10.0",
     "ora": "^5.4.0",
     "xorshift": "^1.1.1"
   }
