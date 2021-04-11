@@ -1,6 +1,6 @@
 # Get Node App
 
-Sick of writing node apps from scratch? **get node app** to rescue. It helps you setup a basic template of a specific node app. Templates can be found over [here](https://github.com/DarthCucumber/get-node-app-templates/)
+Sick of writing node apps from scratch? **Get Node App** to rescue. It helps you setup a basic template of a specific node app. Templates can be found over [here](https://github.com/DarthCucumber/get-node-app-templates/)
 
 Cannot find the template you need? Head over to [*get-node-app-templates*](https://github.com/DarthCucumber/get-node-app-templates/) and add you own or improve existing templates (make sure to read contribution guide)
 
@@ -20,7 +20,7 @@ npm i -g get-node-app
 
 to run use `gna` or `get-node-app`
 
-![demo](https://i.imgur.com/cOlwbg0.gif)
+![demo](https://i.imgur.com/6sIACZn.gif)
 
 Easy peazy! now get into the folder and do your stuff ;)
 
@@ -32,7 +32,7 @@ option: `-d` or `--debug`
 gna -d
 ```
 
-![debug mode](https://i.imgur.com/tcI5vc9.png)
+![debug mode](https://i.imgur.com/RyakuSl.gif)
 
 it won't delete log file even if no error occured
 
