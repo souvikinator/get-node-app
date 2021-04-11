@@ -20,13 +20,27 @@ npm i -g get-node-app
 
 to run use `gna` or `get-node-app`
 
-![demo](https://i.imgur.com/YoXhCSv.gif)
+![demo](https://i.imgur.com/cOlwbg0.gif)
 
 Easy peazy! now get into the folder and do your stuff ;)
 
+## Running in debug mode
+
+option: `-d` or `--debug`
+
+```bash
+gna -d
+```
+
+![debug mode](https://i.imgur.com/tcI5vc9.png)
+
+it won't delete log file even if no error occured
+
 ## Contribution
 
-- Before making any PR, working on a fix or new feature, make sure you open a new Issue(if doesn't exist). 
+We love your input! We want to make contributing to this project as easy and transparent as possible. Below are few guidelines:
+
+- Before making any PR, working on a fix or new feature, make sure you open a new Issue(if doesn't exist) to discuss things transparently and get community feedback.
 
 - Make sure to work on a new branch. Branch should have a short and descriptive name.
 
