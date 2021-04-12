@@ -27,7 +27,6 @@
     "fs-extra": "^9.1.0",
     "gh-retrieve": "^1.1.2",
     "inquirer": "^8.0.0",
-    "logto": "^0.1.0",
     "lookpath": "^1.2.0",
     "ora": "^5.4.0",
     "xorshift": "^1.1.1"

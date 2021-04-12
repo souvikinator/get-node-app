@@ -1,10 +1,11 @@
 const path = require('path');
 const fs = require('fs-extra');
 const chalk = require('chalk');
+const { getDateTime } = require('./misc');
 function Logto(logsdir) {
-    const logfile = `${new Date().toISOString()}.log`;
+    const logfile = `${getDateTime()}.log`;
     const logfilepath = path.join(logsdir, logfile);
-    let stream = fs.createWriteStream(logfilepath, { flag: 'a', encoding: 'utf8' });
+    let stream = fs.createWriteStream(logfilepath, { flag: 'a', encoding: 'utf-8' });
     this.logfile = logfilepath;
     this.info = function (msg) {
         stream.write(`[info] ${msg}\n`);
