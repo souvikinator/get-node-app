@@ -1,5 +1,6 @@
 const fs = require('fs-extra');
-
+const path = require('path');
+const os = require('os');
 /**
  * modifies package.json in project directory
  * use it after process.chdir(projectdir)
@@ -23,9 +24,14 @@ exports.modifyPkgFile = async function (projectname) {
 }
 
 /**
- * deletes a directory
- * @param {string} dir - directory path
+ * creates app data directory if doesn't exist
+ * @returns log directory and template directory
  */
-exports.removeDir = async function (dir) {
-    fs.remove(dir).catch(err => { throw new Error(err) });
+exports.createAppDataDir = async function () {
+    const homedir = os.homedir();
+    const logsdir = path.join(homedir, ".get-node-app-data", 'logs');
+    const templatesdir = path.join(homedir, ".get-node-app-data", 'templates');
+    await fs.ensureDir(logsdir).catch(err => { throw new Error(err) });
+    await fs.ensureDir(templatesdir).catch(err => { throw new Error(err) });
+    return { logsdir, templatesdir }
 }

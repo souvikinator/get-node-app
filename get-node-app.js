@@ -2,74 +2,68 @@
 const inquirer = require("inquirer");
 const fs = require('fs-extra');
 const path = require('path');
-const os = require('os');
 const ora = require('ora');
-const logto = require('logto');
 const chalk = require('chalk');
-const { removeDir } = require('./helpers/filehandling');
 const { performChecks } = require('./helpers/checks');
 const { getTemplateList, downloadTemplate } = require('./helpers/templates');
-const { getRandomPhrase, getDateTime } = require('./helpers/misc');
+const { getRandomPhrase } = require('./helpers/misc');
+const { createAppDataDir } = require('./helpers/filehandling');
 const { setupProject } = require('./helpers/installs');
+const Logto = require("./helpers/logger");
 let metadata = {
+    logsdir: "",
+    templatename: "",
+    templatesdir: "",
     pkgmanager: "",
-    template: "",
     projectname: "",
-    appdatadir: "",
     debug: false
-}
+};
+
 // TODO: improve logging
-// display banner
 console.log(chalk.magentaBright.bold(`
  _  _  _
 /_\/\/ //_| v0.1.0
 _/
 `));
-// check if debug mode enabled
+// check for debug mode
 const args = process.argv.slice(2);
 if (args[0] === "-d" || args[0] === "--debug") {
     metadata.debug = true;
     console.log(chalk.yellow('> debug mode enabled'));
 }
-// starting new logfile instance
-metadata.appdatadir = path.join(os.homedir(), ".get-node-app-data");
-const logdir = path.join(metadata.appdatadir, "logs");
-const logfile = `${getDateTime()}.log`;
-const logger = new logto({ dir: logdir, file: logfile });
-// log the platform
-logger.log(`platform: ${process.platform}`);
-
-let spinner = ora('Performing checks').start();
 
 (async () => {
-    /**
-     * node, git, npm or yarn present?
-     * return package manager installed in the system
-     * if both yarn and npm installed then npm is preferred
-     **/
+    // setup app data if doesn't exist
+    const appdatadir = await createAppDataDir().catch(err => { console.log(err.message) });
+    Object.assign(metadata, appdatadir);
+    // start logging
+    let logger = new Logto(metadata.logsdir);
+    logger.info(`platform: ${process.platform}`);
+
+    let spinner = ora('Performing checks').start();
     let result = await performChecks().catch(err => {
-        handleError(err);
+        spinner.fail(err.message);
+        logger.handleError(err);
     });
     metadata.pkgmanager = result;
     spinner.succeed("Checks complete");
-    logger.log("Checks complete");
+    logger.info("Checks complete");
     // fetch template list
     spinner.text = "Fetching template..."
     spinner.start();
     const templateList = await getTemplateList().catch(err => {
-        handleError(err);
+        spinner.fail(err.message);
+        logger.handleError(err);
     });
     spinner.succeed("Fetched templates\n");
-    logger.log("Fetched templates");
-    console.log('know more about each templates or create your own: https://github.com/DarthCucumber/get-node-app-templates');
-    /**
-     * allow users to select template and project name
-     * */
+    logger.info("Fetched templates");
+    console.log('know more about each templates or create your own:\n')
+    console.log(chalk.greenBright.underline(`https://github.com/DarthCucumber/get-node-app-templates`));
     let answers = await inquirer
         .prompt([
             {
                 type: 'list',
-                name: 'template',
+                name: 'templatename',
                 message: `Select Template:`,
                 choices: templateList
             }
@@ -84,64 +78,50 @@ let spinner = ora('Performing checks').start();
                     return true;
                 },
             }]);
-    // store in metadata
     Object.assign(metadata, answers);
-    // {homedir}/.get-node-app-data/templates/{template-name}
-    const templateDir = path.join(metadata.appdatadir, "templates");
     // Download template
     spinner.text = `Downloading templates...`;
     spinner.start();
-    await downloadTemplate(templateDir, metadata.template).catch(err => {
-        handleError(err);
+    await downloadTemplate(metadata.templatesdir, metadata.templatename).catch(err => {
+        spinner.fail(err.message);
+        logger.handleError(err);
     });
-    spinner.succeed(`Template downloaded\n`);
-    logger.log("templates downloaded");
+    spinner.succeed(`Template downloaded`);
+    logger.info("templates downloaded");
     // create project directory
     await fs.ensureDir(metadata.projectname).then(() => {
         spinner.succeed(`Project Created: ${metadata.projectname}`);
-        logger.log(`project created: ${metadata.projectname}`);
+        logger.info(`project created: ${metadata.projectname}`);
     }).catch(err => {
         handleError(err);
     });
     // copy selected template from app data to project dir
-    const tmplContent = path.join(templateDir, metadata.template);
-    await fs.copy(tmplContent, metadata.projectname).catch(err => {
-        handleError(err);
+    const templateContent = path.join(metadata.templatesdir, metadata.templatename);
+    await fs.copy(templateContent, metadata.projectname).catch(err => {
+        logger.handleError(err);
     })
-    logger.log(`copied file from ${templateDir} to ${metadata.template}`);
-    // modeify package file, install node modules and git init
+    logger.info(`copied file from ${templateContent} to ${metadata.templatename}`);
+    // final setup
     spinner.text = "Setting up project";
     spinner.start();
     await setupProject(metadata.pkgmanager, metadata.projectname).catch(err => {
-        handleError(err);
+        spinner.fail(err.message);
+        logger.handleError(err);
     });
     spinner.succeed(`Project setup complete\n`);
-    logger.log(`Project setup complete`);
+    logger.info(`Project setup complete`);
     console.log(`＼(＾O＾)／ All set\n`);
     /**
      * print random phrase
      * why? just for fun ;)
      */
     let rp = getRandomPhrase();
-    console.log(chalk.magentaBright.bold(rp),"\n");
-    logger.log(`random phrase generated`);
-    /**
-     * keep log file if debug mode is enabled else delete log file
-     */
+    console.log(chalk.magentaBright.bold(rp), "\n");
+    logger.info(`random phrase generated`);
+    // keep logfile in debug mode
     if (metadata.debug) {
-        console.log(`log file can be found in ${chalk.cyan(logger.logfile)}\n`);
-        logger.end();
+        console.log(`log file can be found at ${chalk.cyan(logger.logfile)}\n`);
         return;
     }
-    removeDir(path.join(logdir, logfile));
+    await logger.deleteLog();
 })();
-
-// not the elegant way, but works lol
-async function handleError(err) {
-    logger.log(err.stack);
-    logger.end();
-    await removeDir(metadata.projectname);
-    spinner.fail(chalk.redBright(err.message));
-    console.log(`log file can be found in ${chalk.cyan(logger.logfile)}`);
-    process.exit(1);
-}
