@@ -4,6 +4,11 @@ Sick of writing node apps from scratch? **Get Node App** to rescue. It helps you
 
 Cannot find the template you need? Head over to [*get-node-app-templates*](https://github.com/DarthCucumber/get-node-app-templates/) and add you own or improve existing templates (make sure to read contribution guide)
 
+## Todo:
+
+- [ ] proper error handling
+- [ ] proper logging 
+
 ## Installation
 
 ```bash
