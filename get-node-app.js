@@ -42,7 +42,7 @@ if (args[0] === "-d" || args[0] === "--debug") {
 
     let spinner = ora('Performing checks').start();
     let result = await performChecks().catch(err => {
-        spinner.fail(err.message);
+        spinner.fail(chalk.redBright(err.message));
         logger.handleError(err);
     });
     metadata.pkgmanager = result;
@@ -52,12 +52,12 @@ if (args[0] === "-d" || args[0] === "--debug") {
     spinner.text = "Fetching template..."
     spinner.start();
     const templateList = await getTemplateList().catch(err => {
-        spinner.fail(err.message);
+        spinner.fail(chalk.redBright(err.message));
         logger.handleError(err);
     });
     spinner.succeed("Fetched templates\n");
     logger.info("Fetched templates");
-    console.log('know more about each templates or create your own:\n')
+    console.log('know more about each templates or create your own:');
     console.log(chalk.greenBright.underline(`https://github.com/DarthCucumber/get-node-app-templates`));
     let answers = await inquirer
         .prompt([
@@ -83,21 +83,23 @@ if (args[0] === "-d" || args[0] === "--debug") {
     spinner.text = `Downloading templates...`;
     spinner.start();
     await downloadTemplate(metadata.templatesdir, metadata.templatename).catch(err => {
-        spinner.fail(err.message);
+        spinner.fail(chalk.redBright(err.message));
         logger.handleError(err);
     });
     spinner.succeed(`Template downloaded`);
     logger.info("templates downloaded");
     // create project directory
     await fs.ensureDir(metadata.projectname).then(() => {
-        spinner.succeed(`Project Created: ${metadata.projectname}`);
-        logger.info(`project created: ${metadata.projectname}`);
+        spinner.succeed(`project created: ${chalk.cyanBright(metadata.projectname)}`);
+        logger.info(`Project Created: ${metadata.projectname}`);
     }).catch(err => {
-        handleError(err);
+        console.log("❌",chalk.redBright(err.message));
+        logger.handleError(err);
     });
     // copy selected template from app data to project dir
     const templateContent = path.join(metadata.templatesdir, metadata.templatename);
     await fs.copy(templateContent, metadata.projectname).catch(err => {
+        console.log("❌",chalk.redBright(err.message));
         logger.handleError(err);
     })
     logger.info(`copied file from ${templateContent} to ${metadata.templatename}`);
@@ -105,7 +107,7 @@ if (args[0] === "-d" || args[0] === "--debug") {
     spinner.text = "Setting up project";
     spinner.start();
     await setupProject(metadata.pkgmanager, metadata.projectname).catch(err => {
-        spinner.fail(err.message);
+        spinner.fail(chalk.redBright(err.message));
         logger.handleError(err);
     });
     spinner.succeed(`Project setup complete\n`);
@@ -120,7 +122,7 @@ if (args[0] === "-d" || args[0] === "--debug") {
     logger.info(`random phrase generated`);
     // keep logfile in debug mode
     if (metadata.debug) {
-        console.log(`log file can be found at ${chalk.cyan(logger.logfile)}\n`);
+        console.log(`log file can be found at ${chalk.cyan.underline(logger.logfile)}\n`);
         return;
     }
     await logger.deleteLog();

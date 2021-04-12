@@ -38,3 +38,11 @@ exports.getRandomPhrase = function () {
 function uniformint(a, b) {
   return Math.floor(a + xorshift.random() * (b - a));
 }
+
+/**
+ * @returns date and time in format: day-month-year_hrs-mins-sec
+ */
+exports.getDateTime = function () {
+  let dt = new Date();
+  return `${dt.getDate()}-${dt.getMonth()}-${dt.getFullYear()}_${dt.getHours()}-${dt.getMinutes()}-${dt.getSeconds()}`;
+}
