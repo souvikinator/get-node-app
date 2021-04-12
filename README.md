@@ -1,4 +1,7 @@
-# Get Node App
+<p align="center">
+  <img src="https://github.com/DarthCucumber/get-node-app/blob/master/static/get-node-app.svg"/>
+  <h1 align="center">Get Node App</h1>
+</p>
 
 Sick of writing node apps from scratch? **Get Node App** to rescue. It helps you setup a basic template of a specific node app. Templates can be found over [here](https://github.com/DarthCucumber/get-node-app-templates/)
 
