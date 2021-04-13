@@ -23,9 +23,9 @@ exports.getTemplateList = async function () {
                 }
             })
         })
-        .catch(err => {
-            throw new Error(err);
-        })
+        // .catch(err => {
+        //     throw new Error(err.message);
+        // })
     return tmplist;
 }
 
@@ -40,7 +40,5 @@ exports.downloadTemplate = async function (outDir, templateName) {
         targetdir: templateName,
         outdir: outDir,
         branch: "master"
-    }).catch(err => {
-        throw new Error(err);
     });
 }

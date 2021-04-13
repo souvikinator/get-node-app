@@ -11,17 +11,11 @@ exports.setupProject = async function (pkgmanager, projectdir) {
     // change directory to project dir
     process.chdir(projectdir);
     // modify package.json
-    await modifyPkgFile(projectdir).catch(err => {
-        throw new Error(err);
-    });
+    await modifyPkgFile(projectdir);
     // install node modules
-    await execa(pkgmanager, ['install']).catch(err => {
-        throw new Error(err);
-    });
+    await execa(pkgmanager, ['install']);
     // perform git init
-    await execa('git', ['init']).catch(err => {
-        throw new Error(err);
-    });
+    await execa('git', ['init']);
     // change to original directory
     process.chdir(cwd);
 }

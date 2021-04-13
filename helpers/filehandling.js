@@ -14,12 +14,13 @@ exports.modifyPkgFile = async function (projectname) {
         jsondata = packageObj;
         // set project name
         jsondata.name = projectname;
-    }).catch(err => { throw new Error(err) });
+    })
+    // .catch(err => { throw new Error(err.message) });
     //save modified data back to package json
     fs.writeJson(packagefile, jsondata, {
         spaces: 2
     }, err => {
-        if (err) throw new Error(err);
+        if (err) throw err;
     })
 }
 
@@ -31,7 +32,9 @@ exports.createAppDataDir = async function () {
     const homedir = os.homedir();
     const logsdir = path.join(homedir, ".get-node-app-data", 'logs');
     const templatesdir = path.join(homedir, ".get-node-app-data", 'templates');
-    await fs.ensureDir(logsdir).catch(err => { throw new Error(err) });
-    await fs.ensureDir(templatesdir).catch(err => { throw new Error(err) });
+    await fs.ensureDir(logsdir)
+    // .catch(err => { throw err });
+    await fs.ensureDir(templatesdir)
+    // .catch(err => { throw err });
     return { logsdir, templatesdir }
 }

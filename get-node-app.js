@@ -34,7 +34,7 @@ if (args[0] === "-d" || args[0] === "--debug") {
 
 (async () => {
     // setup app data if doesn't exist
-    const appdatadir = await createAppDataDir().catch(err => { console.log(err.message) });
+    const appdatadir = await createAppDataDir().catch(err => { console.log(err) });
     Object.assign(metadata, appdatadir);
     // start logging
     let logger = new Logto(metadata.logsdir);
@@ -83,11 +83,12 @@ if (args[0] === "-d" || args[0] === "--debug") {
     spinner.text = `Downloading templates...`;
     spinner.start();
     await downloadTemplate(metadata.templatesdir, metadata.templatename).catch(err => {
-        spinner.fail(chalk.redBright(err.message));
+        spinner.stop();
+        console.log(chalk.redBright(err.message));
         logger.handleError(err);
     });
     spinner.succeed(`Template downloaded`);
-    logger.info("templates downloaded");
+    logger.info("template downloaded");
     // create project directory
     await fs.ensureDir(metadata.projectname).then(() => {
         spinner.succeed(`project created: ${chalk.cyanBright(metadata.projectname)}`);
@@ -107,7 +108,8 @@ if (args[0] === "-d" || args[0] === "--debug") {
     spinner.text = "Setting up project";
     spinner.start();
     await setupProject(metadata.pkgmanager, metadata.projectname).catch(err => {
-        spinner.fail(chalk.redBright(err.message));
+        spinner.stop();
+        console.log(chalk.redBright(err.message));
         logger.handleError(err);
     });
     spinner.succeed(`Project setup complete\n`);
