@@ -1,6 +1,6 @@
 {
   "name": "get-node-app",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Setup simple nodejs based templates in few steps",
   "main": "index.js",
   "bin": {
