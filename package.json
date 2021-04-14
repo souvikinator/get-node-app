@@ -1,11 +1,11 @@
 {
   "name": "get-node-app",
   "version": "0.1.0",
-  "description": "",
+  "description": "Setup simple nodejs based templates in few steps",
   "main": "index.js",
   "bin": {
-    "get-node-app": "./get-node-app.js",
-    "gna": "./get-node-app.js"
+    "get-node-app": "get-node-app.js",
+    "gna": "get-node-app.js"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -32,5 +32,14 @@
     "ora": "^5.4.0",
     "pretty-error": "^3.0.3",
     "xorshift": "^1.1.1"
-  }
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DarthCucumber/get-node-app.git"
+  },
+  "bugs": {
+    "url": "https://github.com/DarthCucumber/get-node-app/issues"
+  },
+  "homepage": "https://github.com/DarthCucumber/get-node-app#readme"
 }
