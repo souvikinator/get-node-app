@@ -11,6 +11,8 @@ Cannot find the template you need? Head over to [*get-node-app-templates*](https
 
 - [ ] proper error handling
 - [ ] proper logging 
+- [ ] add more templates
+- [ ] add more random phrases (displayed at the end of setup)
 
 ## Installation
 
