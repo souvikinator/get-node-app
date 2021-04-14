@@ -2,9 +2,8 @@ const path = require('path');
 const fs = require('fs-extra');
 const chalk = require('chalk');
 const { getDateTime } = require('./misc');
-const PrettyError = require('pretty-error');
-const pe = new PrettyError();
-pe.withoutColors();
+const Errfmt=require('errfmt');
+const errfmt=new Errfmt();
 
 function Logto(logsdir) {
     const logfile = `${getDateTime()}.log`;
@@ -12,13 +11,14 @@ function Logto(logsdir) {
     let stream = fs.createWriteStream(logfilepath, { flag: 'a', encoding: 'utf-8' });
     this.logfile = logfilepath;
     this.info = function (msg) {
-        stream.write(`[info] ${msg}\n`);
+        stream.write(`[INFO] ${msg}\n`);
     }
     this.warn = function (msg) {
-        stream.write(`[warn] ${msg}\n`);
+        stream.write(`[WARN] ${msg}\n`);
     }
     this.error = function (err) {
-        stream.write(pe.render(err));
+        let inc=['exitCode','code','errorCode','stack'];
+        stream.write(errfmt.withoutColor().include(...inc).render(err));
     }
     this.handleError = function (err) {
         this.error(err);
